@@ -7,8 +7,10 @@ Cleans the raw form data before anything touches HubSpot. Lowercases and trims t
 
 
 ### Parameters  
-**Mode**: Run Once For Each Item
-**Language**: Javascript
+| Setting | Value |
+| --- | --- |
+| **Mode** | Run Once For Each Item |
+| **Language** | Javascript |
 
 #### JavaScript 
 ```js
@@ -37,9 +39,10 @@ return [{ json: {
 ```  
 
 ### Settings
-**Always Output Data**: Inactive
-**Execute Once**: Inactive
-**Retry On Fail**: Inactive
-**On Error**: Inactive
-
-**Notes**: Cleans the email, drops junk, and preps the HubSpot lookup.
+| Setting | Value |
+| --- | --- |
+| **Always Output Data** | Inactive |
+| **Execute Once** | Inactive |
+| **Retry On Fail** | Inactive |
+| **On Error** | Inactive |
+| **Notes** | Cleans the email, drops junk, and preps the HubSpot lookup. |
