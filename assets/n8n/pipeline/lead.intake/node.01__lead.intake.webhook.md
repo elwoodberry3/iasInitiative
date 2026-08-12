@@ -6,12 +6,16 @@ Receives the POST request from the Vercel /api/lead route when someone submits t
 **Node Type**: Webhook - Starts the workflow when a webhook is called.  
 
 ### Parameters  
+| Setting | Value |
+| --- | --- |
 | **HTTP Method** | POST |
 | **Path** | ias-lead |
 | **Authentication** | None |
 | **Respond** | Immediately |
 
 ### Settings  
+| Setting | Value |
+| --- | --- |
 | **Allow Multiple HTTP Methods** | Inactive |
 | **Always Output Data** | Inactive |
 | **Execute Once** | Inactive |
