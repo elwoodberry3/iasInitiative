@@ -6,16 +6,16 @@ Handles a returning contact who resubmitted. Updates their record with the lates
 **Node Type**: HTTP - Makes an HTTP request and returns the response data.  
 
 ### Parameters  
-**HTTP Method**: PATCH
-**Path**: https://api.hubapi.com/crm/v3/objects/contacts/{{ $json.contactId }}
-**Authentication**: Predefined Credential Type
-**Credential Type**: Hubspot OAuth2 API
-**Hubspot OAuth2 API**: Hubspot Account 
-
-**Send Query Parameters**: Inactive
-
-**Send Headers**: Active
-**Specify Headers**: Using Fields Below
+| Setting | Value |
+| --- | --- |
+| **HTTP Method** | PATCH|
+| **Path** | https://api.hubapi.com/crm/v3/objects/contacts/{{ $json.contactId }} |
+| **Authentication** | Generic Credential Type |
+| **Generic Auth Type** | Header Auth |
+| **Header Auth** | IAS Hubspot Private App | 
+| **Send Query Parameters** | Inactive |
+| **Send Headers** | Active |
+| **Specify Headers** | Using Fields Below |
 
 #### Headers  
 ##### Content Type  
