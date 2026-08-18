@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { funnel } from "@/lib/funnel.config";
+import { funnel, getHeroMode } from "@/lib/funnel.config";
 import { track } from "@/lib/track";
 import { VideoFrame } from "@/components/VideoFrame";
 import { SignalRail } from "@/components/SignalRail";
@@ -10,6 +10,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 export default function VslPage() {
   const [ctaReady, setCtaReady] = useState(false);
+  const heroMode = getHeroMode();
 
   useEffect(() => {
     track("page_view", { page: "vsl" });
@@ -38,6 +39,19 @@ export default function VslPage() {
         </div>
       </header>
 
+      {/* Waitlist scarcity banner — only in smoke-test mode. */}
+      {heroMode ? (
+        <div className="border-b border-hair bg-primary">
+          <div className="mx-auto flex max-w-page items-center justify-center gap-2 px-6 py-2.5">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-signal rounded-full bg-accent" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+            </span>
+            <p className="font-mono text-xs text-white">{heroMode.banner}</p>
+          </div>
+        </div>
+      ) : null}
+
       {/* HERO + VSL */}
       <section className="mx-auto max-w-page px-6 pt-14 pb-10 sm:pt-20">
         <div className="grid items-start gap-10 lg:grid-cols-[1.05fr_0.95fr]">
@@ -54,7 +68,7 @@ export default function VslPage() {
                 onClick={scrollToForm}
                 className="rounded-lg bg-accent px-6 py-3.5 text-sm font-semibold text-primary transition hover:bg-accent-600"
               >
-                {funnel.hero.ctaPrimary}
+                {heroMode?.ctaPrimary ?? funnel.hero.ctaPrimary}
               </button>
               <span className="font-mono text-xs text-muted">{funnel.hero.ctaNote}</span>
             </div>
@@ -62,7 +76,8 @@ export default function VslPage() {
 
           <div className="animate-risein">
             <VideoFrame
-              todoLabel={funnel.hero.videoTodo.label}
+              youtube={funnel.hero.videoYouTubeId}
+              title={funnel.hero.videoTitle}
               onCtaReady={() => setCtaReady(true)}
             />
           </div>
@@ -171,7 +186,7 @@ export default function VslPage() {
             onClick={scrollToForm}
             className="ml-auto rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-primary hover:bg-accent-600"
           >
-            {funnel.hero.ctaPrimary}
+            {heroMode?.ctaPrimary ?? funnel.hero.ctaPrimary}
           </button>
         </div>
       </div>

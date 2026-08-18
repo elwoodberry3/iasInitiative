@@ -6,10 +6,16 @@ Creates the contact in HubSpot (or updates them if they slipped through as exist
 **Node Type**: HTTP - Makes an HTTP request and returns the response data.  
 
 ### Parameters  
-**HTTP Method**: POST
-**Path**: ias-lead
-**Authentication**: none
-**Respond**: Immediately
+| Setting | Value |
+| --- | --- |
+| **HTTP Method** | POST |
+| **Path** | https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert |
+| **Authentication** | Generic Credential Type |
+| **Generic Auth Type** | Header Auth |
+| **Header Auth** | IAS Hubspot Private App | 
+| **Send Headers** | Active → Content-Type: application/json | 
+| **Send Body** | Active, JSON | 
+| **JSON** | {{ JSON.stringify({ inputs: [ { idProperty: 'email', id: $json.email, properties: $json.hsProps } ] }) }} | 
 
 ### Settings  
 **Allow Multiple HTTP Methods**: Inactive

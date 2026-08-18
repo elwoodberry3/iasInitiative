@@ -23,9 +23,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "A valid email is required" }, { status: 422 });
   }
 
+  // Funnel mode is authoritative on the server — the client can't fake which
+  // drip a lead enters. n8n branches on funnel_variant:
+  //   "waitlist" → "we'll notify you when spots open" Resend email + waitlist drip
+  //   "live"     → training-delivery Resend email + main drip
+  const mode = process.env.FUNNEL_MODE === "waitlist" ? "waitlist" : "live";
+
   const record = {
     ...payload,
-    source: "ias-vsl",
+    funnel_variant: mode,
+    source: mode === "waitlist" ? "ias-vsl-waitlist" : "ias-vsl",
     submitted_at: new Date().toISOString(),
     user_agent: req.headers.get("user-agent") ?? "",
   };

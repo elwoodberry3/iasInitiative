@@ -6,10 +6,17 @@ Sends the welcome email through Resend. Posts the prepared message to the Resend
 **Node Type**: HTTP - Makes an HTTP request and returns the response data.   
 
 ### Parameters  
-**HTTP Method**: POST
-**Path**: ias-lead
-**Authentication**: none
-**Respond**: Immediately
+| Setting | Value |
+| --- | --- |
+| **HTTP Method** | POST |
+| **Path** | https://api.resend.com/emails|
+| **Authentication** | Generic Credential Type |
+| **Generic Auth Type** | Header Auth |
+| **Header Auth** | Resend API | 
+| **Send Headers** | Active → Content-Type: application/json | 
+| **Send Body** | Active, JSON | 
+| **JSON** | {{ JSON.stringify($json.resendBody) }} | 
+| **On Error** | Continue (so a mail failure doesn't roll back the enrollment) | 
 
 ### Settings  
 **Allow Multiple HTTP Methods**: Inactive

@@ -3,28 +3,45 @@
 import { useEffect, useRef, useState } from "react";
 import { track } from "@/lib/track";
 import { TodoChip } from "./TodoChip";
+import { YouTubeEmbed, parseYouTubeId } from "./YouTubeEmbed";
 
 /**
  * VSL video frame with milestone tracking (25/50/75/complete + play).
  *
- * Pass `src` when the real video exists (Mux/YouTube/hosted mp4). Until then it
- * renders an honest placeholder with a TODO chip — no fake player, no fake
- * thumbnail. Milestone events fire to /api/track → n8n for retargeting audiences.
+ * Sources, in priority order:
+ *  - `youtube`: a YouTube ID or URL → renders the enterprise lite-embed
+ *    (facade, no third-party JS until click) via <YouTubeEmbed>.
+ *  - `src`: a hosted mp4 / Mux URL → native <video> with the same milestones.
+ *  - neither → honest placeholder + TODO chip. No fake player, no fake thumbnail.
+ *
+ * Milestone events fire to /api/track → n8n for retargeting audiences and are
+ * identical across the YouTube and native paths.
  */
 export function VideoFrame({
   src,
+  youtube,
+  title,
   todoLabel,
   onCtaReady,
+  eventPrefix = "vsl",
 }: {
   src?: string;
+  youtube?: string;
+  title?: string;
   todoLabel?: string;
   onCtaReady?: () => void;
+  eventPrefix?: "vsl" | "thankyou";
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const fired = useRef<Set<string>>(new Set());
   const [ready, setReady] = useState(false);
 
+  // YouTube takes precedence when a valid ID/URL is supplied.
+  const ytId = youtube ? parseYouTubeId(youtube) : null;
+
   useEffect(() => {
+    // Native-<video> milestones only. YouTube handles its own via the IFrame API.
+    if (ytId) return;
     const v = ref.current;
     if (!v) return;
 
@@ -56,7 +73,13 @@ export function VideoFrame({
       v.removeEventListener("timeupdate", onTime);
       v.removeEventListener("ended", onEnd);
     };
-  }, [onCtaReady]);
+  }, [onCtaReady, ytId]);
+
+  if (ytId) {
+    return (
+      <YouTubeEmbed id={ytId} title={title} onCtaReady={onCtaReady} eventPrefix={eventPrefix} />
+    );
+  }
 
   if (!src) {
     return (

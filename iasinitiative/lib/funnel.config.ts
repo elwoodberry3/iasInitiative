@@ -35,8 +35,10 @@ export const funnel = {
     headline: "You already know AI matters. Nobody showed you how to actually use it.",
     sub:
       "A free, no-fluff walkthrough of how I automate real work — and how you can become the man in your building nobody can replace. No coding degree. No hype. Just builds.",
-    // The video is the VSL. Replace src with the real Mux/YouTube embed when cut.
-    videoTodo: todo("Embed final VSL video (Mux/YouTube ID)"),
+    // The video is the VSL. Real, deployed YouTube VSL — rendered via the
+    // enterprise lite-embed (facade, no third-party JS until click).
+    videoYouTubeId: "SYa-fsWpftQ",
+    videoTitle: "You already know AI matters — here's how to actually use it",
     ctaPrimary: "Watch the training",
     ctaNote: "Takes ~14 minutes. Then I hand you the workflow.",
   },
@@ -157,9 +159,12 @@ export const funnel = {
   thankYou: {
     heading: "You're in. Check your email.",
     sub: "The training link is on its way to your inbox. While you wait — here's the room where I actually build.",
+    // Shock & Awe: a real welcome/build video surfaced inline on confirmation,
+    // rendered via the enterprise lite-embed. Real, deployed — not a placeholder.
+    videoYouTubeId: "4W2LQrxhmMI",
+    videoTitle: "Welcome to IAS — watch a build right now",
     watchCta: "Watch a build right now",
     watchHref: "https://www.youtube.com/@iautomatesht",
-    // The confirmation page also surfaces the video directly (Shock & Awe).
     inlineNote: "Didn't get the email in a couple minutes? Check spam, or the promotions tab.",
   },
 
@@ -181,3 +186,92 @@ export const funnel = {
 } as const;
 
 export type Funnel = typeof funnel;
+
+/**
+ * Funnel mode — smoke-test switch.
+ *
+ *   FUNNEL_MODE=live      → real VSL funnel, submit routes to /thank-you.
+ *   FUNNEL_MODE=waitlist  → fake-door / smoke test. Submit routes to /class-full,
+ *                           stamps funnel_variant=waitlist so n8n branches to the
+ *                           "notify me when spots open" Resend email + drip.
+ *
+ * This is a build-time public flag so both server (redirect-safety) and client
+ * (form redirect) read the same value. Flip it in Vercel env and redeploy — no
+ * code change. Default is "live" so a missing env never fakes a full class.
+ *
+ * Governance (Article IX): the waitlist is honest — the cohort genuinely isn't
+ * open yet because the content is still being built. Real capture, real list,
+ * real "we'll notify you." Not a dead end.
+ */
+export type FunnelMode = "live" | "waitlist";
+
+/**
+ * Resolve the funnel mode from env, defaulting to "live".
+ *
+ * Each helper reads process.env.NEXT_PUBLIC_FUNNEL_MODE *directly* so Next can
+ * statically inline it into the client bundle. Do NOT build a chain of consts
+ * that reference each other (funnelMode → isWaitlist → submitRedirect): in the
+ * production bundle those intermediate consts can evaluate before their
+ * dependency is initialized and resolve to `undefined`, which is what made
+ * router.push(submitRedirect) throw "Cannot read properties of undefined
+ * (reading 'startsWith')". A function that always returns a string can't.
+ */
+export function getFunnelMode(): FunnelMode {
+  return process.env.NEXT_PUBLIC_FUNNEL_MODE === "waitlist" ? "waitlist" : "live";
+}
+
+export const funnelMode: FunnelMode = getFunnelMode();
+
+export const isWaitlist = getFunnelMode() === "waitlist";
+
+/**
+ * Where a successful submit lands, by mode. Function, not a bare const — it
+ * always returns a valid path string, so router.push() can never receive
+ * undefined regardless of bundle evaluation order.
+ */
+export function getSubmitRedirect(): "/class-full" | "/thank-you" {
+  return getFunnelMode() === "waitlist" ? "/class-full" : "/thank-you";
+}
+
+/** Back-compat const — safe now because getSubmitRedirect() always returns a string. */
+export const submitRedirect: "/class-full" | "/thank-you" = getSubmitRedirect();
+
+/**
+ * Mode-aware hero overrides. In waitlist mode the CTA and a scarcity banner
+ * change so the "door" reads as real demand — enterprise smoke tests surface
+ * the constraint on the landing page, not only after submit.
+ */
+export function getHeroMode() {
+  return getFunnelMode() === "waitlist"
+    ? {
+        banner: "The current cohort is full — join the waitlist for the next one.",
+        ctaPrimary: "Join the waitlist",
+        formLabel: "Join the waitlist",
+        formHeading: "Get first access to the next cohort",
+        formSub:
+          "Spots open to this list first, before it goes public. Drop your email and I'll notify you.",
+        formSubmit: "Join the waitlist",
+      }
+    : null;
+}
+
+export const heroMode = getHeroMode();
+
+/**
+ * Waitlist / "class full" confirmation copy. Headline leads with the offer
+ * (you're on the list), scarcity is the reason — the 2026 waitlist-smoke-test
+ * pattern, not a dead-end "Class is Full" wall.
+ */
+export const classFull = {
+  eyebrow: "Enrollment closed",
+  heading: "This cohort filled up — you're on the waitlist.",
+  sub: "The current group is full. You're locked in for the next one — I'll email you the moment spots open, before it goes public.",
+  points: [
+    "You're on the list. No further action needed.",
+    "Next cohort opens first to this waitlist — you'll get the heads-up early.",
+    "While you wait, watch how I actually build. Same work, on camera.",
+  ],
+  watchCta: "Watch a build while you wait",
+  watchHref: "https://www.youtube.com/@iautomatesht",
+  inlineNote: "Wrong email? Just re-submit — I'll use the most recent one.",
+} as const;

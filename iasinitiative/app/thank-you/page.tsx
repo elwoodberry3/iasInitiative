@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { funnel } from "@/lib/funnel.config";
 import { track } from "@/lib/track";
+import { VideoFrame } from "@/components/VideoFrame";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export default function ThankYouPage() {
@@ -32,6 +33,10 @@ export default function ThankYouPage() {
             {t.heading}
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-body">{t.sub}</p>
+
+          <div className="mx-auto mt-8 max-w-xl text-left">
+            <VideoFrame youtube={t.videoYouTubeId} title={t.videoTitle} eventPrefix="thankyou" />
+          </div>
 
           <a
             href={t.watchHref}
