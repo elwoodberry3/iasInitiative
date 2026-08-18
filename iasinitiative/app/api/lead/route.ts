@@ -29,13 +29,13 @@ export async function POST(req: NextRequest) {
   //   "live"     → training-delivery Resend email + main drip
   const mode = process.env.FUNNEL_MODE === "waitlist" ? "waitlist" : "live";
 
-  const record = {
-    ...payload,
-    funnel_variant: mode,
-    source: mode === "waitlist" ? "ias-vsl-waitlist" : "ias-vsl",
-    submitted_at: new Date().toISOString(),
-    user_agent: req.headers.get("user-agent") ?? "",
-  };
+const record = {
+  intent: "confirmed",        // safe default…
+  ...payload,                 // …overridden by whatever the form sent
+  source: "ias-vsl",
+  submitted_at: new Date().toISOString(),
+  user_agent: req.headers.get("user-agent") ?? "",
+};
 
   const webhook = process.env.N8N_LEAD_WEBHOOK_URL;
   if (!webhook) {

@@ -61,7 +61,7 @@ export function LeadForm() {
         headers: { "Content-Type": "application/json" },
         // funnel_variant is also enforced server-side; sending it here keeps
         // client analytics and the stored record consistent.
-        body: JSON.stringify({ ...values, funnel_variant: mode }),
+        body: JSON.stringify({ ...values, intent: mode === "waitlist" ? "waitlist" : "confirmed" }),
       });
       const data = await res.json();
       if (!res.ok || data.ok === false) {
@@ -70,7 +70,7 @@ export function LeadForm() {
       track(mode === "waitlist" ? "waitlist_conversion" : "conversion", {
         email_domain: values.email?.split("@")[1],
       });
-      router.push(getSubmitRedirect());
+      router.push(mode === "waitlist" ? "/waitlist-confirmed" : "/thank-you");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong. Try again.");
       setBusy(false);
