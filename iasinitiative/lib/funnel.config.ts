@@ -168,6 +168,18 @@ export const funnel = {
     inlineNote: "Didn't get the email in a couple minutes? Check spam, or the promotions tab.",
   },
 
+  // ── WAITLIST CONFIRMATION (linkless — no training access yet) ──────────
+  waitlistConfirmed: {
+    heading: "You're on the list.",
+    sub: "The bootcamp isn't open yet. When a seat opens up, you'll be the first to know — I'll email you the moment it's live.",
+    // Deliberately NO training link/CTA here. Waitlisters get access when the
+    // cohort opens, not before. This mirrors the linkless waitlist email so the
+    // page and the inbox tell the same honest story.
+    watchCta: "See what I build in the meantime",
+    watchHref: "https://www.youtube.com/@iautomatesht",
+    inlineNote: "Didn't get the confirmation email? Check spam or the promotions tab.",
+  },
+
   // ── VIDEO PAGE (gated content the email links to) ──────────────────────
   watch: {
     heading: "Your training",
