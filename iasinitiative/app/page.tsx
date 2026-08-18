@@ -7,6 +7,7 @@ import { VideoFrame } from "@/components/VideoFrame";
 import { SignalRail } from "@/components/SignalRail";
 import { LeadForm } from "@/components/LeadForm";
 import { SiteFooter } from "@/components/SiteFooter";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export default function VslPage() {
   const [ctaReady, setCtaReady] = useState(false);
@@ -26,10 +27,9 @@ export default function VslPage() {
       {/* Top bar */}
       <header className="border-b border-hair">
         <div className="mx-auto flex max-w-page items-center justify-between px-6 py-4">
-          <span className="font-display text-sm font-bold tracking-tight text-primary">
-            {funnel.brand.short}
-            <span className="text-accent-600">.</span>
-          </span>
+          <a href="/" aria-label={`${funnel.brand.name} home`} className="inline-flex items-center">
+            <BrandLogo variant="onLight" decorative className="h-7 w-auto" />
+          </a>
           <a
             href={funnel.brand.youtube}
             className="font-mono text-xs text-muted hover:text-primary"
