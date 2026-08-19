@@ -1,6 +1,6 @@
 # Build Enroll Props
 **NODE 08**  
-Assembles the property object for a brand-new contact. Packages email, first name, source, and the initial drip fields (**drip_status enrolled**, **drip_started_at**, **drip_last_step** 0, submission count) into the exact shape the HubSpot upsert expects — separating data-shaping from the API call that follows.
+Runs on the new-contact (false) branch. Assembles the HubSpot property object for a brand-new lead — identity plus initial drip state — and sets drip_status from intent so waitlisters are parked out of the 30-day drip. Shapes the exact object the Upsert & Enroll node sends.
 
 ## Configuration Settings
 **Node Type**: Code - Runs custom JavaScript or Python code 
@@ -11,8 +11,6 @@ Assembles the property object for a brand-new contact. Packages email, first nam
 
 #### JavaScript 
 ```js
-
-
 /**
  * =============================================================================
  * PIPELINE CODE MODULE
@@ -20,7 +18,7 @@ Assembles the property object for a brand-new contact. Packages email, first nam
  *
  * @file        Build Enroll Props
  * @module      n8n/CodeNode/IAS-Lead-Intake/Build-Enroll-Props
- * @version     1.0.0
+ * @version     1.1.0
  * @environment Production
  * @workflowId  ${workflow.id}
  *
@@ -39,8 +37,9 @@ Assembles the property object for a brand-new contact. Packages email, first nam
  * @description
  * Runs on the "new contact" (false) branch of the enrollment IF. Assembles the
  * HubSpot property object for a brand-new lead — identity plus the initial drip
- * state (drip_status=enrolled, drip_started_at, drip_last_step=0, counts, and
- * suppressed=false) — in the exact shape the Upsert & Enroll node sends. Keeps
+ * state — in the exact shape the Upsert & Enroll node sends. Sets drip_status
+ * from the lead's intent: 'confirmed' enters the 30-day drip ('enrolled'),
+ * 'waitlist' is parked ('waitlist') so the scheduler never picks it up. Keeps
  * data-shaping separate from the API call so the request node stays declarative.
  *
  * -----------------------------------------------------------------------------
@@ -50,6 +49,7 @@ Assembles the property object for a brand-new contact. Packages email, first nam
  *   - email               {string} Required - normalized email.
  *   - firstName           {string} Optional - lead first name.
  *   - source              {string} Required - funnel source (e.g. 'ias-vsl').
+ *   - intent              {string} Required - 'waitlist' | 'confirmed'.
  *   - nowIso              {string} Required - enrollment timestamp.
  *   - newSubmissionCount  {number} Required - submission counter.
  *
@@ -82,23 +82,27 @@ Assembles the property object for a brand-new contact. Packages email, first nam
  * Date        Version  Author               Change Description
  * -----------------------------------------------------------------------------
  * 2026-08-12  1.0.0    Steve Berry          Initial implementation.
+ * 2026-08-19  1.1.0    Steve Berry          drip_status set from intent so
+ *                                           waitlisters are parked out of the drip.
  * =============================================================================
  */
 
 const s = $json;
+// Waitlisters must NOT enter the 30-day drip. The scheduler only picks up
+// contacts whose drip_status is 'enrolled' or 'active', so 'waitlist' parks
+// them safely with no drip sends.
+const isWaitlist = s.intent === 'waitlist';
 return { json: { ...s, hsProps: {
   email: s.email,
   firstname: s.firstName,
   ias_source: s.source,
-  drip_status: 'enrolled',
+  drip_status: isWaitlist ? 'waitlist' : 'enrolled',
   drip_started_at: s.nowIso,
   drip_last_step: '0',
   submission_count: String(s.newSubmissionCount),
   last_submitted_at: s.nowIso,
   suppressed: 'false'
 }}};
-
-
 ```  
 
 ### Settings
